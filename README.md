@@ -1,3 +1,17 @@
+# MajorBarnulf/RE-flex
+
+## Description
+
+this is a fork of [Genivia/RE-flex](https://github.com/Genivia/RE-flex) from the version 3.3.0 of 06/03/2023.
+All credits goes to the original author and contributors.
+
+## Intents
+
+It won't get updated, it is used to publish an AUR for use in a [school project](https://assignments.lrde.epita.fr) at EPITA.
+
+## Original README :
+
+---
 
 [![logo][logo-url]][reflex-url]
 
