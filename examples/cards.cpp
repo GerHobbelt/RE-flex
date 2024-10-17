@@ -47,7 +47,7 @@ void get_card_numbers(void)
   std::cout << "where\n0 = MasterCard\n1 = Visa\n2 = AMEX\n3 = Discover\n4 = Diners Club" << std::endl;
 }
 
-int main()
+int main(void)
 {
   get_card_numbers();
   return EXIT_SUCCESS;

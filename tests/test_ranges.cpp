@@ -23,7 +23,7 @@ struct Pos {
 
 using namespace reflex;
 
-int main()
+int main(void)
 {
 
   ORanges<Pos> positions(0, 3);

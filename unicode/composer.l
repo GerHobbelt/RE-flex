@@ -66,7 +66,7 @@ hex			[[:xdigit:]]+
 
 %%
 
-int main()
+int main(void)
 {
   Lexer().lex();
 

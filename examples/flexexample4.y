@@ -33,7 +33,7 @@ assignment  : STRING '=' NUMBER ';' { printf("(setf %s %d)\n", $1, $3); }
 
 %%
 
-int main()
+int main(void)
 {
   yyscan_t scanner;	/* the old way in C */
   yylex_init(&scanner);

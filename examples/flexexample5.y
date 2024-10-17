@@ -40,7 +40,7 @@ assignment  : STRING '=' NUMBER ';' { printf("(setf %s %d)\n", $1, $3); ++((stru
 
 %%
 
-int main()
+int main(void)
 {
   struct pass_through params;
   yyscan_t scanner;	/* the old way in C */

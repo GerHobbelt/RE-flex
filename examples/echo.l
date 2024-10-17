@@ -19,7 +19,7 @@
 %%
 .+  ECHO;
 %%
-int main()
+int main(void)
 {
   /* Flex C++ yyFlexLexer, or we can return yylex() when using option --bison */
   return yyFlexLexer().yylex();

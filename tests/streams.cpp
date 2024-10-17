@@ -9,7 +9,7 @@ void make_buffered_streambuf2(reflex::Input& input, size_t size);
 void make_buffered_dos_streambuf1(reflex::Input& input, size_t size);
 void make_buffered_dos_streambuf2(reflex::Input& input, size_t size);
 
-int main()
+int main(void)
 {
   // create an Input object
   reflex::Input input;

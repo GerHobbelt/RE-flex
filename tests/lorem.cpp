@@ -363,7 +363,7 @@ void test_lorem(const char *title, AbstractMatcher &tokenizer, AbstractMatcher &
     printf("FAIL hits=%zu\n", hits);
 }
 
-int main()
+int main(void)
 {
   Matcher tokenizer("(\\w+)|(\\W)");
   Matcher filter("\\w+");

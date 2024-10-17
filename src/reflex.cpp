@@ -3082,7 +3082,7 @@ void Reflex::write_main()
   if (!options["main"].empty())
   {
     write_banner("SECTION 3: main");
-    *out << "int main()\n{\n  return ";
+    *out << "int main(void)\n{\n  return ";
     if (options["bison"].empty())
     {
       if (!options["namespace"].empty())

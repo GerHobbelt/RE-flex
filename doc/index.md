@@ -1788,7 +1788,7 @@ To create a stand-alone scanner, we add `main` to the User code section:
     %%
     {cow}    out() << text()[0] << "hick";
     %%
-    int main() { return Lexer().lex(); }
+    int main(void) { return Lexer().lex(); }
 ~~~
 </div>
 
@@ -2368,7 +2368,7 @@ from standard input (the default input) and display all numbers found:
 
     %%
 
-    int main() { return Lexer().lex(); }
+    int main(void) { return Lexer().lex(); }
 ~~~
 </div>
 

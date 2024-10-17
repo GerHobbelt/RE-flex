@@ -66,7 +66,7 @@ else
 # if not AVX512BW/AVX2/SSE2, check if this piece of metal has ARM NEON/AArch64
 cat > conftest.c << END
 #include <arm_neon.h>
-int main() { uint64x2_t n; uint64_t m = vgetq_lane_u64(n, 0); }
+int main(void) { uint64x2_t n; uint64_t m = vgetq_lane_u64(n, 0); }
 END
 if cc -c conftest.c >& /dev/null ; then
   CMFLAGS='-DHAVE_NEON'

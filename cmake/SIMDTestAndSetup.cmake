@@ -12,7 +12,7 @@ option(USE_NEON "Enable NEON intrinsics (if available)" ON)
 if (USE_AVX512BW)
   check_cxx_source_runs("
     #include <immintrin.h>
-    int main() {
+    int main(void) {
       __m512 n = _mm512_set1_epi8(42);
       (void)_mm512_cmpeq_epi8_mask(n, n);
       return 0;
@@ -23,7 +23,7 @@ endif()
 if (USE_AVX2)
   check_cxx_source_runs("
     #include <immintrin.h>
-    int main() {
+    int main(void) {
       __m256i n = _mm256_set1_epi8(42);
       (void)_mm256_movemask_epi8(_mm256_and_si256(n, n));
       return 0;
@@ -34,7 +34,7 @@ endif()
 if (USE_SSE2)
   check_cxx_source_runs("
     #include <emmintrin.h>
-    int main() {
+    int main(void) {
       __m128i n = _mm_set1_epi8(42);
       return 0;
     }
@@ -44,7 +44,7 @@ endif()
 if (USE_NEON)
   check_cxx_source_runs("
     #include <arm_neon.h>
-    int main() {
+    int main(void) {
       uint64x2_t n;
       uint64_t m = vgetq_lane_u64(n, 0);
       return 0;

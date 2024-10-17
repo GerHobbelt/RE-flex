@@ -29,7 +29,7 @@ int fac(int n)
 float pi; // a static variable; variables are not implicitly initialized, using them uninitialized is a runtime error
 
 // the main function may return int or void and takes no arguments, command line arguments are $1, $2, ..., $n with n = #$
-int main()
+int main(void)
 {
   // locals are declared at the top of a function, not in blocks, and may be int, float or string
   int i;    // integers are signed 32 bit

@@ -67,7 +67,7 @@ expr : 'V' '=' expr       { $$ = lexer->map[*$1] = $3; }
 
 %%
 
-int main()
+int main(void)
 {
   Lexer lexer(stdin, std::cout);
   return yyparse(&lexer);

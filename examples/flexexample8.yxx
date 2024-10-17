@@ -33,7 +33,7 @@ assignment  : STRING '=' NUMBER ';' { std::cout << "(setf " << $1 << " " << $3 <
 
 %%
 
-int main()
+int main(void)
 {
   yyscanner_t scanner;	// new way in C++ using reflex-generated yyscanner_t
   yyparse(&scanner);	// scanner is passed on to yylex()

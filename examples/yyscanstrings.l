@@ -27,7 +27,7 @@
 .|\n    // ignore
 %%
 
-int main()
+int main(void)
 {
   yyFlexLexer lexer;
 

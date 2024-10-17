@@ -19,7 +19,7 @@
 
 %%
 
-int main()
+int main(void)
 {
   yyscan_t scanner;
 

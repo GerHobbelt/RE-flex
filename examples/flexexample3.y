@@ -25,7 +25,7 @@ assignment  : STRING '=' NUMBER ';' { printf("(setf %s %d)\n", $1, $3); }
 
 %%
 
-int main()
+int main(void)
 {
   yyparse();
   return 0;

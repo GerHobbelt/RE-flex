@@ -15,7 +15,7 @@
 .|\n    // ignore
 %%
 
-int main()
+int main(void)
 {
   Lexer lexer;
 

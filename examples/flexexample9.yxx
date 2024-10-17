@@ -54,7 +54,7 @@ assignment  : STRING '=' NUMBER ';' { std::cout << "(setf " << $1 << " " << $3 <
 
 %%
 
-int main()
+int main(void)
 {
   Driver driver(std::cin);
   return driver.parse();

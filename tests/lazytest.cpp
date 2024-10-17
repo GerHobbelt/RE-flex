@@ -87,7 +87,7 @@ Test tests[] = {
   { NULL, NULL, NULL, NULL, { } }
 };
 
-int main()
+int main(void)
 {
   size_t fail = 0;
   for (const Test *test = tests; test->pattern != NULL; ++test)

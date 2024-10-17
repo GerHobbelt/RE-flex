@@ -6,7 +6,7 @@
 
 using namespace reflex;
 
-int main()
+int main(void)
 {
   static Bits digit('0', '9'); // bits '0' (48th bit) to '9' (57th bit)
   static Bits upper('A', 'Z'); // bits 'A' (65th bit) to 'Z' (92th bit)

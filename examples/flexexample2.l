@@ -38,7 +38,7 @@ unsigned int comm = 0 ; /* Bytes of comments. */
 
 %%
 
-int main() {
+int main(void) {
 
   yyFlexLexer().yylex() ; /* modified for C++ */
 

@@ -239,7 +239,7 @@ Test tests[] = {
   { NULL, NULL, NULL, NULL, { } }
 };
 
-int main()
+int main(void)
 {
   banner("PATTERN TESTS");
   for (const Test *test = tests; test->pattern != NULL; ++test)

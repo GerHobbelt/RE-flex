@@ -16,7 +16,7 @@
 
 %%
 
-int main()
+int main(void)
 {
   Lexer().lex();
   return 0;
