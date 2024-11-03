@@ -46,6 +46,34 @@ namespace reflex {
 
 #if defined(HAVE_AVX2) || defined(HAVE_AVX512BW)
 
+#define SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(PIN) \
+  switch (pat_->min_) \
+  { \
+    case 0: \
+    case 1: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_one_avx2; \
+      break; \
+    case 2: \
+    case 3: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pma_avx2; \
+      break; \
+    case 4: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pmh_avx2<4>; \
+      break; \
+    case 5: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pmh_avx2<5>; \
+      break; \
+    case 6: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pmh_avx2<6>; \
+      break; \
+    case 7: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pmh_avx2<7>; \
+      break; \
+    case 8: \
+      adv_ = &Matcher::simd_advance_pattern_pin##PIN##_pmh_avx2<8>; \
+      break; \
+  }
+
 // AVX2 runtime optimized function callback overrides
 void Matcher::simd_init_advance_avx2()
 {
@@ -54,75 +82,74 @@ void Matcher::simd_init_advance_avx2()
     switch (pat_->pin_)
     {
       case 1:
-        if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin1_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2;
+        switch (pat_->min_)
+        {
+          case 2:
+          case 3:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pma_avx2;
+            break;
+          case 4:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2<4>;
+            break;
+          case 5:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2<5>;
+            break;
+          case 6:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2<6>;
+            break;
+          case 7:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2<7>;
+            break;
+          case 8:
+            adv_ = &Matcher::simd_advance_pattern_pin1_pmh_avx2<8>;
+            break;
+        }
         break;
       case 2:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin2_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin2_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin2_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(2);
         break;
       case 3:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin3_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin3_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin3_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(3);
         break;
       case 4:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin4_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin4_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin4_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(4);
         break;
       case 5:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin5_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin5_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin5_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(5);
         break;
       case 6:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin6_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin6_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin6_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(6);
         break;
       case 7:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin7_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin7_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin7_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(7);
         break;
       case 8:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin8_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin8_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin8_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(8);
         break;
       case 16:
-        if (pat_->min_ == 1)
-          adv_ = &Matcher::simd_advance_pattern_pin16_one_avx2;
-        else if (pat_->min_ < 4)
-          adv_ = &Matcher::simd_advance_pattern_pin16_pma_avx2;
-        else
-          adv_ = &Matcher::simd_advance_pattern_pin16_pmh_avx2;
+        SIMD_INIT_ADV_PAT_PIN_CASE_AVX2(16);
         break;
+#ifdef WITH_BITAP_AVX2 // use in case vectorized bitap (hashed) is faster than serial version (typically not!!)
+      default:
+        switch (pat_->min_)
+        {
+          case 4:
+            adv_ = &Matcher::simd_advance_pattern_min4_avx2<4>;
+            break;
+          case 5:
+            adv_ = &Matcher::simd_advance_pattern_min4_avx2<5>;
+            break;
+          case 6:
+            adv_ = &Matcher::simd_advance_pattern_min4_avx2<6>;
+            break;
+          case 7:
+            adv_ = &Matcher::simd_advance_pattern_min4_avx2<7>;
+            break;
+          case 8:
+            adv_ = &Matcher::simd_advance_pattern_min4_avx2<8>;
+            break;
+        }
+#endif
     }
   }
   else if (pat_->len_ == 1)
@@ -149,21 +176,18 @@ void Matcher::simd_init_advance_avx2()
   }
   else if (pat_->bmd_ == 0)
   {
-#if defined(WITH_STRING_PM)
     if (pat_->min_ >= 4)
       adv_ = &Matcher::simd_advance_string_pmh_avx2;
     else if (pat_->min_ > 0)
       adv_ = &Matcher::simd_advance_string_pma_avx2;
     else
-#endif
       adv_ = &Matcher::simd_advance_string_avx2;
   }
 }
 
-// My "needle search" method when pin=1
+// My homegrown "needle search" method when needle pin=1
 bool Matcher::simd_advance_pattern_pin1_pma_avx2(size_t loc)
 {
-  const Pattern::Pred *pma = pat_->pma_;
   const char *chr = pat_->chr_;
   size_t min = pat_->min_;
   uint16_t lcp = pat_->lcp_;
@@ -186,14 +210,13 @@ bool Matcher::simd_advance_pattern_pin1_pma_avx2(size_t loc)
         uint32_t offset = ctz(mask);
         loc = s - lcp + offset - buf_;
         set_current(loc);
-        if (loc + 4 > end_ || Pattern::predict_match(pma, &buf_[loc]) == 0)
+        if (loc + 4 > end_ || pat_->predict_match(&buf_[loc]))
           return true;
         mask &= mask - 1;
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + min > end_)
@@ -204,12 +227,11 @@ bool Matcher::simd_advance_pattern_pin1_pma_avx2(size_t loc)
   return advance_pattern_pin1_pma(loc);
 }
 
-// My "needle search" method when pin=1
+// My homegrown "needle search" method when needle pin=1
+template <uint8_t MIN>
 bool Matcher::simd_advance_pattern_pin1_pmh_avx2(size_t loc)
 {
-  const Pattern::Pred *pmh = pat_->pmh_;
   const char *chr = pat_->chr_;
-  size_t min = pat_->min_;
   uint16_t lcp = pat_->lcp_;
   uint16_t lcs = pat_->lcs_;
   __m256i vlcp = _mm256_set1_epi8(chr[0]);
@@ -217,7 +239,7 @@ bool Matcher::simd_advance_pattern_pin1_pmh_avx2(size_t loc)
   while (true)
   {
     const char *s = buf_ + loc + lcp;
-    const char *e = buf_ + end_ + lcp - min + 1;
+    const char *e = buf_ + end_ + lcp - MIN + 1;
     while (s <= e - 32)
     {
       __m256i vstrlcp = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(s));
@@ -230,29 +252,27 @@ bool Matcher::simd_advance_pattern_pin1_pmh_avx2(size_t loc)
         uint32_t offset = ctz(mask);
         loc = s - lcp + offset - buf_;
         set_current(loc);
-        if (Pattern::predict_match(pmh, &buf_[loc], min))
+        if (pat_->predict_match(&buf_[loc], MIN))
           return true;
         mask &= mask - 1;
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
-    if (loc + min > end_)
+    if (loc + MIN > end_)
       return false;
-    if (loc + min + 31 > end_)
+    if (loc + MIN + 31 > end_)
       break;
   }
-  return advance_pattern_pin1_pmh(loc);
+  return advance_pattern_pin1_pmh<MIN>(loc);
 }
 
-// My "needle search" methods
+// My homegrown "needle search" methods
 #define ADV_PAT_PIN_ONE(N, INIT, COMP) \
 bool Matcher::simd_advance_pattern_pin##N##_one_avx2(size_t loc) \
 { \
-  const Pattern::Pred *pma = pat_->pma_; \
   const char *chr = pat_->chr_; \
   INIT \
   while (true) \
@@ -269,7 +289,7 @@ bool Matcher::simd_advance_pattern_pin##N##_one_avx2(size_t loc) \
       { \
         uint32_t offset = ctz(mask); \
         loc = s + offset - buf_; \
-        if (loc + 4 > end_ || Pattern::predict_match(pma, &buf_[loc]) == 0) \
+        if (loc + 4 > end_ || pat_->predict_match(&buf_[loc])) \
         { \
           set_current(loc); \
           return true; \
@@ -286,7 +306,7 @@ bool Matcher::simd_advance_pattern_pin##N##_one_avx2(size_t loc) \
     if (loc + 32 > end_) \
       break; \
   } \
-  return advance_pattern(loc); \
+  return advance_pattern_pma(loc); \
 }
 
 ADV_PAT_PIN_ONE(2, \
@@ -415,11 +435,10 @@ ADV_PAT_PIN_ONE(16, \
     veq = _mm256_or_si256(veq, _mm256_cmpeq_epi8(vf, vstr)); \
   )
 
-// My "needle search" methods
+// My homegrown "needle search" methods
 #define ADV_PAT_PIN(N, INIT, COMP) \
 bool Matcher::simd_advance_pattern_pin##N##_pma_avx2(size_t loc) \
 { \
-  const Pattern::Pred *pma = pat_->pma_; \
   const char *chr = pat_->chr_; \
   size_t min = pat_->min_; \
   uint16_t lcp = pat_->lcp_; \
@@ -441,7 +460,7 @@ bool Matcher::simd_advance_pattern_pin##N##_pma_avx2(size_t loc) \
       { \
         uint32_t offset = ctz(mask); \
         loc = s - lcp + offset - buf_; \
-        if (loc + 4 > end_ || Pattern::predict_match(pma, &buf_[loc]) == 0) \
+        if (loc + 4 > end_ || pat_->predict_match(&buf_[loc])) \
         { \
           set_current(loc); \
           return true; \
@@ -450,8 +469,7 @@ bool Matcher::simd_advance_pattern_pin##N##_pma_avx2(size_t loc) \
       } \
       s += 32; \
     } \
-    s -= lcp; \
-    loc = s - buf_; \
+    loc = s - lcp - buf_; \
     set_current_and_peek_more(loc - 1); \
     loc = cur_ + 1; \
     if (loc + min > end_) \
@@ -459,21 +477,20 @@ bool Matcher::simd_advance_pattern_pin##N##_pma_avx2(size_t loc) \
     if (loc + min + 31 > end_) \
       break; \
   } \
-  return advance_pattern(loc); \
+  return advance_pattern_pma(loc); \
 } \
 \
+template <uint8_t MIN> \
 bool Matcher::simd_advance_pattern_pin##N##_pmh_avx2(size_t loc) \
 { \
-  const Pattern::Pred *pmh = pat_->pmh_; \
   const char *chr = pat_->chr_; \
-  size_t min = pat_->min_; \
   uint16_t lcp = pat_->lcp_; \
   uint16_t lcs = pat_->lcs_; \
   INIT \
   while (true) \
   { \
     const char *s = buf_ + loc + lcp; \
-    const char *e = buf_ + end_ + lcp - min + 1; \
+    const char *e = buf_ + end_ + lcp - MIN + 1; \
     while (s <= e - 32) \
     { \
       __m256i vstrlcp = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(s)); \
@@ -486,7 +503,7 @@ bool Matcher::simd_advance_pattern_pin##N##_pmh_avx2(size_t loc) \
       { \
         uint32_t offset = ctz(mask); \
         loc = s - lcp + offset - buf_; \
-        if (Pattern::predict_match(pmh, &buf_[loc], min)) \
+        if (pat_->predict_match(&buf_[loc], MIN)) \
         { \
           set_current(loc); \
           return true; \
@@ -495,16 +512,15 @@ bool Matcher::simd_advance_pattern_pin##N##_pmh_avx2(size_t loc) \
       } \
       s += 32; \
     } \
-    s -= lcp; \
-    loc = s - buf_; \
+    loc = s - lcp - buf_; \
     set_current_and_peek_more(loc - 1); \
     loc = cur_ + 1; \
-    if (loc + min > end_) \
+    if (loc + MIN > end_) \
       return false; \
-    if (loc + min + 31 > end_) \
+    if (loc + MIN + 31 > end_) \
       break; \
   } \
-  return advance_pattern_min4(loc); \
+  return advance_pattern_min4<MIN>(loc); \
 }
 
 ADV_PAT_PIN(2, \
@@ -727,6 +743,90 @@ ADV_PAT_PIN(16, \
     veqlcs = _mm256_or_si256(veqlcs, _mm256_cmpeq_epi8(vlcsf, vstrlcs)); \
   )
 
+#ifdef WITH_BITAP_AVX2 // use in case vectorized bitap (hashed) is faster than serial version (typically not!!)
+
+/// Minimal 4 byte long patterns (MIN>=4) using bitap hashed pairs with AVX2
+template <uint8_t MIN>
+bool Matcher::simd_advance_pattern_min4_avx2(size_t loc)
+{
+  const uint32_t btap = Pattern::Const::BTAP;
+  const __m128i vmod = _mm_set1_epi32(btap - 1);
+  const __m128i vselect = _mm_set_epi8(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 13, 9, 5, 1);
+  const __m128i voffset = _mm_set_epi32(0, btap, 2 * btap, 3 * btap);
+  uint32_t state0 = ~0U << (8 - (MIN - 1));
+  uint32_t state1 = ~0U << (8 - (MIN - 2));
+  uint32_t state2 = ~0U << (8 - (MIN - 3));
+  uint32_t state3 = ~0U << (8 - (MIN - 4));
+  if (MIN <= 6)
+    state3 = state2;
+  if (MIN <= 5)
+    state2 = state1;
+  if (MIN <= 4)
+    state1 = state0;
+  __m128i vstate = _mm_set_epi32(state0, state1, state2, state3);
+  __m128i vc0 = _mm_set1_epi32(buf_[loc++]);
+  while (true)
+  {
+    const char *s = buf_ + loc;
+    const char *e = buf_ + end_ - 3;
+    while (s < e)
+    {
+      __m128i vc1 = _mm_cvtepu8_epi32(_mm_loadu_si32(reinterpret_cast<const uint32_t*>(s)));
+      vc0 = _mm_alignr_epi8(vc1, vc0, 12);
+      // hash
+      __m128i vh = _mm_and_si128(_mm_xor_si128(vc0, _mm_slli_epi32(vc1, 6)), vmod);
+      // gather bitap hashed bits
+      __m128i vb = _mm_i32gather_epi32(reinterpret_cast<const int32_t*>(pat_->vtp_), _mm_or_si128(vh, voffset), 2);
+      // shift-or
+      vstate = _mm_or_si128(_mm_slli_epi32(vstate, 4), vb);
+      // pass last char to the next iteration
+      vc0 = vc1;
+      // get most significant bit of each byte, check each 2nd byte of the 4x32 bit words
+      uint32_t mask = _mm_extract_epi32(_mm_shuffle_epi8(vstate, vselect), 0);
+      if ((mask & 0x00000008) == 0 && pat_->predict_match(s - MIN + 0, MIN))
+      {
+        loc = s - buf_ - MIN + 0;
+        set_current(loc);
+        return true;
+      }
+      if ((mask & 0x00000404) == 0 && pat_->predict_match(s - MIN + 1, MIN))
+      {
+        loc = s - buf_ - MIN + 1;
+        set_current(loc);
+        return true;
+      }
+      if ((mask & 0x00020202) == 0 && pat_->predict_match(s - MIN + 2, MIN))
+      {
+        loc = s - buf_ - MIN + 2;
+        set_current(loc);
+        return true;
+      }
+      if ((mask & 0x01010101) == 0 && pat_->predict_match(s - MIN + 3, MIN))
+      {
+        loc = s - buf_ - MIN + 3;
+        set_current(loc);
+        return true;
+      }
+      // butterfly-or:
+      //    a       b       c       d     input vec
+      //    c       d       a       b     swizzle
+      //   a|c     b|d     c|a     d|b    or
+      //   b|d     a|c     d|b     c|a    swizzle
+      // a|c|b|d b|d|a|c c|a|d|b d|b|c|a  or
+      vstate = _mm_or_si128(vstate, _mm_shuffle_epi32(vstate, 0x4e)); // = 01 00 11 10 = 1 0 3 2
+      vstate = _mm_or_si128(vstate, _mm_shuffle_epi32(vstate, 0xb1)); // = 10 11 00 01 = 2 3 0 1
+      s += 4;
+    }
+    loc = s - buf_;
+    set_current_and_peek_more(loc - 1);
+    loc = cur_ + 1;
+    if (loc + 3 >= end_)
+      return advance_pattern_min4<MIN>(loc - MIN);
+  }
+}
+
+#endif
+
 /// Few chars
 template<uint8_t LEN>
 bool Matcher::simd_advance_chars_avx2(size_t loc)
@@ -761,8 +861,7 @@ bool Matcher::simd_advance_chars_avx2(size_t loc)
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + LEN > end_)
@@ -779,7 +878,6 @@ bool Matcher::simd_advance_chars_pma_avx2(size_t loc)
 {
   static const uint16_t lcp = 0;
   static const uint16_t lcs = LEN - 1;
-  const Pattern::Pred *pma = pat_->pma_;
   const char *chr = pat_->chr_;
   size_t min = pat_->min_;
   while (true)
@@ -802,7 +900,7 @@ bool Matcher::simd_advance_chars_pma_avx2(size_t loc)
             (LEN == 3 ? s[offset + 1 - lcp] : std::memcmp(s + 1 - lcp + offset, chr + 1, LEN - 2) == 0))
         {
           loc = s - lcp + offset - buf_;
-          if (loc + LEN + 4 > end_ || Pattern::predict_match(pma, &buf_[loc + LEN]) == 0)
+          if (loc + LEN + 4 > end_ || pat_->predict_match(&buf_[loc + LEN]))
           {
             set_current(loc);
             return true;
@@ -812,8 +910,7 @@ bool Matcher::simd_advance_chars_pma_avx2(size_t loc)
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + LEN + min > end_)
@@ -830,7 +927,6 @@ bool Matcher::simd_advance_chars_pmh_avx2(size_t loc)
 {
   static const uint16_t lcp = 0;
   static const uint16_t lcs = LEN - 1;
-  const Pattern::Pred *pmh = pat_->pmh_;
   const char *chr = pat_->chr_;
   size_t min = pat_->min_;
   while (true)
@@ -854,15 +950,14 @@ bool Matcher::simd_advance_chars_pmh_avx2(size_t loc)
         {
           loc = s - lcp + offset - buf_;
           set_current(loc);
-          if (loc + LEN + min > end_ || Pattern::predict_match(pmh, &buf_[loc + LEN], min))
+          if (loc + LEN + min > end_ || pat_->predict_match(&buf_[loc + LEN], min))
             return true;
         }
         mask &= mask - 1;
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + LEN + min > end_)
@@ -906,8 +1001,7 @@ bool Matcher::simd_advance_string_avx2(size_t loc)
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + len > end_)
@@ -918,12 +1012,9 @@ bool Matcher::simd_advance_string_avx2(size_t loc)
   return advance_string(loc);
 }
 
-#if defined(WITH_STRING_PM)
-
 /// Implements AVX2 string search scheme based on http://0x80.pl/articles/simd-friendly-karp-rabin.html
 bool Matcher::simd_advance_string_pma_avx2(size_t loc)
 {
-  const Pattern::Pred *pma = pat_->pma_;
   const char *chr = pat_->chr_;
   size_t len = pat_->len_;
   size_t min = pat_->min_;
@@ -948,7 +1039,7 @@ bool Matcher::simd_advance_string_pma_avx2(size_t loc)
         if (std::memcmp(s - lcp + offset, chr, len) == 0)
         {
           loc = s - lcp + offset - buf_;
-          if (loc + len + 4 > end_ || Pattern::predict_match(pma, &buf_[loc + len]) == 0)
+          if (loc + len + 4 > end_ || pat_->predict_match(&buf_[loc + len]))
           {
             set_current(loc);
             return true;
@@ -958,8 +1049,7 @@ bool Matcher::simd_advance_string_pma_avx2(size_t loc)
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + len + min > end_)
@@ -973,7 +1063,6 @@ bool Matcher::simd_advance_string_pma_avx2(size_t loc)
 /// Implements AVX2 string search scheme based on http://0x80.pl/articles/simd-friendly-karp-rabin.html
 bool Matcher::simd_advance_string_pmh_avx2(size_t loc)
 {
-  const Pattern::Pred *pmh = pat_->pmh_;
   const char *chr = pat_->chr_;
   size_t len = pat_->len_;
   size_t min = pat_->min_;
@@ -999,15 +1088,14 @@ bool Matcher::simd_advance_string_pmh_avx2(size_t loc)
         {
           loc = s - lcp + offset - buf_;
           set_current(loc);
-          if (loc + len + min > end_ || Pattern::predict_match(pmh, &buf_[loc + len], min))
+          if (loc + len + min > end_ || pat_->predict_match(&buf_[loc + len], min))
             return true;
         }
         mask &= mask - 1;
       }
       s += 32;
     }
-    s -= lcp;
-    loc = s - buf_;
+    loc = s - lcp - buf_;
     set_current_and_peek_more(loc - 1);
     loc = cur_ + 1;
     if (loc + len + min > end_)
@@ -1017,8 +1105,6 @@ bool Matcher::simd_advance_string_pmh_avx2(size_t loc)
   }
   return advance_string_pmh(loc);
 }
-
-#endif // WITH_STRING_PM
 
 #else
 

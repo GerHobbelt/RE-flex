@@ -18,7 +18,7 @@ for lex and syntax error reporting, lexer rule execution performance profiling,
 and other new features.
 
 Only RE/flex supports POSIX regex lazy matching in linear time using an
-advanced DFA transformation algorithm invented by Dr. Robert van Engelen.
+advanced DFA transformation algorithm (invented by Dr. Robert van Engelen.)
 
 RE/flex is faster than Flex and much faster than regex libraries such as
 Boost.Regex, C++11 std::regex, PCRE2 and RE2.  For example, tokenizing a 2 KB
@@ -58,7 +58,7 @@ efficiency.  By default, RE/flex uses DFA-based extended regular expression
 matching in linear time, the fastest method (as shown in the table).
 
 The RE/flex matcher tracks line numbers, column numbers, and indentations,
-whereas Flex does not (option noyylineno) and neither do the other regex
+whereas Lex and Flex do not (option noyylineno) and neither do the other regex
 matchers in the table (except PCRE2 and Boost.Regex when used with RE/flex).
 Tracking this information incurs some overhead.  RE/flex also automatically
 decodes UTF-8/16/32 input and accepts `std::istream`, strings, and wide strings
@@ -380,10 +380,18 @@ std::vector<std::string> words(matcher.find.begin(), matcher.find.end());
 Use C++11 range-based loops with RE/flex iterators:
 
 ```{.cpp}
-#include <reflex/stdmatcher.h> // reflex::StdMatcher, reflex::Input, std::regex
-// use a StdMatcher with std::regex to search for words in a sentence
-reflex::StdMatcher matcher("\\w+", "How now brown cow.");
+#include <reflex/pcre2matcher.h> // reflex::PCRE2TFMatcher, reflex::Input, std::regex
+// use a PCRE2UTFMatcher to search for words in a sentence
+reflex::PCRE2UTFMatcher matcher("\\w+", "How now brown cow.");
 for (auto& match : matcher.find)
+  std::cout << "Found " << match.text() << std::endl;
+```
+
+Note that we cannot generally simplify this loop to the following, because the
+temporary matcher object is destroyed (some compilers handle this in C++23):
+
+```{.cpp}
+for (auto& match : reflex::PCRE2UTFMatcher matcher("\\w+", "How now brown cow.").find);
   std::cout << "Found " << match.text() << std::endl;
 ```
 
@@ -394,6 +402,7 @@ underlying regex library understands and will be able to use:
 
 - `std::string reflex::Matcher::convert(const std::string& regex, reflex::convert_flag_type flags)`
 - `std::string reflex::PCRE2Matcher::convert(const std::string& regex, reflex::convert_flag_type flags)`
+- `std::string reflex::PCRE2UTFMatcher::convert(const std::string& regex, reflex::convert_flag_type flags)`
 - `std::string reflex::BoostMatcher::convert(const std::string& regex, reflex::convert_flag_type flags)`
 - `std::string reflex::StdMatcher::convert(const std::string& regex, reflex::convert_flag_type flags)`
 
@@ -595,6 +604,8 @@ Changelog
 - Apr 10, 2024: 4.2.1 minor update to adjust the current input pointer by one when not matching anything.
 - May 12, 2024: 4.3.0 faster `Matcher::find()` with refactored SIMD (SSE2/AVX2/AVX512BW/NEON/AArch64) code; larger default 256KB buffer (from 128KB).
 - Jun  6, 2024: 4.4.0 upgraded `reflex::Matcher` and `reflex::FuzzyMatcher` to respect Unicode word boundaries instead of only ASCII `\<`, `\>`, `\b`, `\B`; upgraded regex Unicode converters to Unicode `[::]` character classes instead of only ASCII `[[:alpha:]]` etc.; improved FSM code generation without local c0.
+- Aug  1, 2024: 4.5.0 minor speed improvements.
+- Oct 29, 2024: 5.0.0 faster SIMD regex search methods; improved anchor and word boundary matching speed and support; new `std::string_view strview()` matcher method.
 
 [logo-url]: https://www.genivia.com/images/reflex-logo.png
 [reflex-url]: https://www.genivia.com/reflex.html

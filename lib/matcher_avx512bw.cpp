@@ -77,13 +77,11 @@ void Matcher::simd_init_advance_avx512bw()
   }
   else if (pat_->bmd_ == 0)
   {
-#if defined(WITH_STRING_PM)
     if (pat_->min_ >= 4)
       adv_ = &Matcher::simd_advance_string_pmh_avx512bw;
     else if (pat_->min_ > 0)
       adv_ = &Matcher::simd_advance_string_pma_avx512bw;
     else
-#endif
       adv_ = &Matcher::simd_advance_string_avx512bw;
   }
 }
@@ -138,7 +136,6 @@ bool Matcher::simd_advance_chars_pma_avx512bw(size_t loc)
 {
   static const uint16_t lcp = 0;
   static const uint16_t lcs = LEN - 1;
-  const Pattern::Pred *pma = pat_->pma_;
   const char *chr = pat_->chr_;
   size_t min = pat_->min_;
   while (true)
@@ -159,7 +156,7 @@ bool Matcher::simd_advance_chars_pma_avx512bw(size_t loc)
             (LEN == 3 ? s[offset + 1 - lcp] == chr[1] : std::memcmp(s + 1 - lcp + offset, chr + 1, LEN - 2) == 0))
         {
           loc = s - lcp + offset - buf_;
-          if (loc + LEN + 4 > end_ || Pattern::predict_match(pma, &buf_[loc + LEN]) == 0)
+          if (loc + LEN + 4 > end_ || pat_->predict_match(&buf_[loc + LEN]))
           {
             set_current(loc);
             return true;
@@ -187,7 +184,6 @@ bool Matcher::simd_advance_chars_pmh_avx512bw(size_t loc)
 {
   static const uint16_t lcp = 0;
   static const uint16_t lcs = LEN - 1;
-  const Pattern::Pred *pmh = pat_->pmh_;
   const char *chr = pat_->chr_;
   size_t min = pat_->min_;
   while (true)
@@ -208,7 +204,7 @@ bool Matcher::simd_advance_chars_pmh_avx512bw(size_t loc)
             (LEN == 3 ? s[offset + 1 - lcp] == chr[1] : std::memcmp(s + 1 - lcp + offset, chr + 1, LEN - 2) == 0))
         {
           loc = s - lcp + offset - buf_;
-          if (loc + LEN + min > end_ || Pattern::predict_match(pmh, &buf_[loc + LEN], min))
+          if (loc + LEN + min > end_ || pat_->predict_match(&buf_[loc + LEN], min))
           {
             set_current(loc);
             return true;
@@ -273,12 +269,9 @@ bool Matcher::simd_advance_string_avx512bw(size_t loc)
   return advance_string(loc);
 }
 
-#if defined(WITH_STRING_PM)
-
 /// Implements AVX512BW string search scheme based on http://0x80.pl/articles/simd-friendly-karp-rabin.html
 bool Matcher::simd_advance_string_pma_avx512bw(size_t loc)
 {
-  const Pattern::Pred *pma = pat_->pma_;
   const char *chr = pat_->chr_;
   size_t len = pat_->len_;
   size_t min = pat_->min_;
@@ -301,7 +294,7 @@ bool Matcher::simd_advance_string_pma_avx512bw(size_t loc)
         if (std::memcmp(s - lcp + offset, chr, len) == 0)
         {
           loc = s - lcp + offset - buf_;
-          if (loc + len + 4 > end_ || Pattern::predict_match(pma, &buf_[loc + len]) == 0)
+          if (loc + len + 4 > end_ || pat_->predict_match(&buf_[loc + len]))
           {
             set_current(loc);
             return true;
@@ -326,7 +319,6 @@ bool Matcher::simd_advance_string_pma_avx512bw(size_t loc)
 /// Implements AVX512BW string search scheme based on http://0x80.pl/articles/simd-friendly-karp-rabin.html
 bool Matcher::simd_advance_string_pmh_avx512bw(size_t loc)
 {
-  const Pattern::Pred *pmh = pat_->pmh_;
   const char *chr = pat_->chr_;
   size_t len = pat_->len_;
   size_t min = pat_->min_;
@@ -349,7 +341,7 @@ bool Matcher::simd_advance_string_pmh_avx512bw(size_t loc)
         if (std::memcmp(s - lcp + offset, chr, len) == 0)
         {
           loc = s - lcp + offset - buf_;
-          if (loc + len + min > end_ || Pattern::predict_match(pmh, &buf_[loc + len], min))
+          if (loc + len + min > end_ || pat_->predict_match(&buf_[loc + len], min))
           {
             set_current(loc);
             return true;
@@ -370,8 +362,6 @@ bool Matcher::simd_advance_string_pmh_avx512bw(size_t loc)
   }
   return advance_string_pmh(loc);
 }
-
-#endif // WITH_STRING_PM
 
 #else
 
