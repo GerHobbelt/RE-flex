@@ -17,8 +17,8 @@ indent/dedent anchors, POSIX regex lazy quantifiers, word boundaries, functions
 for lex and syntax error reporting, lexer rule execution performance profiling,
 and other new features.
 
-Only RE/flex supports POSIX regex lazy matching in linear time using an
-advanced DFA transformation algorithm (invented by Dr. Robert van Engelen.)
+Only RE/flex supports backtrack-free regex lazy matching in linear time using
+an advanced DFA transformation algorithm (invented by Dr. Robert van Engelen.)
 
 RE/flex is faster than Flex and much faster than regex libraries such as
 Boost.Regex, C++11 std::regex, PCRE2 and RE2.  For example, tokenizing a 2 KB
@@ -101,7 +101,7 @@ Features
   regex engines, including the RE/flex regex engine, PCRE2, and Boost.Regex.
 - The RE/flex regex library makes C++11 std::regex, PCRE2, and Boost.Regex much
   easier to use for pattern matching on (wide) strings, files, and streams.
-- IEEE POSIX P1003.2 standard compliant (like Lex and Flex).
+- IEEE POSIX P1003.2 standard compliant like Lex and Flex (but generates C++).
 - Extensive documentation in the online [User Guide][manual-url].
 - Lots of other improvements over Flex++, such as `yypush_buffer_state` saves
   the scanner state (line, column, and indentation positions), not just the
@@ -606,6 +606,9 @@ Changelog
 - Jun  6, 2024: 4.4.0 upgraded `reflex::Matcher` and `reflex::FuzzyMatcher` to respect Unicode word boundaries instead of only ASCII `\<`, `\>`, `\b`, `\B`; upgraded regex Unicode converters to Unicode `[::]` character classes instead of only ASCII `[[:alpha:]]` etc.; improved FSM code generation without local c0.
 - Aug  1, 2024: 4.5.0 minor speed improvements.
 - Oct 29, 2024: 5.0.0 faster SIMD regex search methods; improved anchor and word boundary matching speed and support; new `std::string_view strview()` matcher method.
+- Nov 29, 2024: 5.1.0 appease `-Woverload-virtual` and `-Wshadow` warnings; fix a bug in case-insensitive Unicode negated character class matching too much.
+- Jan  9, 2025: 5.1.1 fix a minor issue with case-insensitive matching when regex patterns are specified in certain ways in combination with "string-like" patterns such that one ore more alternating sub-patterns overlap from the start.
+- Jan 24, 2025: 5.2.0 new file encoding type `null_data` to read NUL as LF and vice versa; supports reading `xargs -0` output for example.
 
 [logo-url]: https://www.genivia.com/images/reflex-logo.png
 [reflex-url]: https://www.genivia.com/reflex.html

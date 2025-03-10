@@ -30,7 +30,7 @@
 @file      pattern.cpp
 @brief     RE/flex regular expression pattern compiler
 @author    Robert van Engelen - engelen@genivia.com
-@copyright (c) 2016-2023, Robert van Engelen, Genivia Inc. All rights reserved.
+@copyright (c) 2016-2025, Robert van Engelen, Genivia Inc. All rights reserved.
 @copyright (c) BSD-3 License - see LICENSE.txt
 */
 
@@ -715,15 +715,17 @@ void Pattern::parse(
 #endif
   timer_type t;
   timer_start(t);
-  if (at(0) == '(' && at(1) == '?')
+  // parse (?imsux) directives that apply to the pattern as a whole
+  while (at(loc) == '(' && at(loc + 1) == '?')
   {
-    loc = 2;
+    Location back = loc;
+    loc += 2;
     while (at(loc) == '-' || std::isalnum(at(loc)))
       ++loc;
     if (at(loc) == ')')
     {
       bool active = true;
-      loc = 2;
+      loc = back + 2;
       Char c;
       while ((c = at(loc)) != ')')
       {
@@ -748,7 +750,8 @@ void Pattern::parse(
     }
     else
     {
-      loc = 0;
+      loc = back;
+      break;
     }
   }
   // assume bol unless pattern is empty, reset flag later when no ^ is used at the start of (sub)patterns
@@ -795,9 +798,9 @@ void Pattern::parse(
       bol_ = false;
       bool quote = false;
 #ifdef WITH_TREE_DFA
-      DFA::State *t = tfa_.start();
+      DFA::State *r = tfa_.start();
 #else
-      Tree::Node *t = tfa_.root();
+      Tree::Node *r = tfa_.root();
 #endif
       while (loc < end)
       {
@@ -830,14 +833,14 @@ void Pattern::parse(
           c = lowercase(c);
         }
 #ifdef WITH_TREE_DFA
-        DFA::State::Edges::iterator i = t->edges.find(c);
-        if (i == t->edges.end())
+        DFA::State::Edges::iterator i = r->edges.find(c);
+        if (i == r->edges.end())
         {
           if (last_state == NULL)
-            last_state = t; // t points to the tree DFA start state
+            last_state = r; // r points to the tree DFA root (start state)
           DFA::State *target_state = last_state = last_state->next = tfa_.state();
-          t->edges[c] = DFA::State::Edge(c, target_state);
-          t = target_state;
+          r->edges[c] = DFA::State::Edge(c, target_state);
+          r = target_state;
           ++eno_;
           ++vno_;
           if (vno_ > DFA::MAX_STATES)
@@ -845,14 +848,14 @@ void Pattern::parse(
         }
         else
         {
-          t = i->second.second;
+          r = i->second.second;
         }
 #else
-        t = tfa_.edge(t, c);
+        r = tfa_.edge(r, c);
 #endif
       }
-      if (t->accept == 0)
-        t->accept = choice;
+      if (r->accept == 0)
+        r->accept = choice;
 #ifdef WITH_TREE_DFA
       acc_.resize(choice, false);
       acc_[choice - 1] = true;
@@ -1165,12 +1168,12 @@ void Pattern::parse3(
     }
     else if (c == '{') // {n,m} repeat min n times to max m
     {
-      size_t k = 0;
+      size_t d = 0;
       for (Location i = 0; i < 7 && std::isdigit(c = at(++loc)); ++i)
-        k = 10 * k + (c - '0');
-      if (k > Position::MAXITER)
+        d = 10 * d + (c - '0');
+      if (d > Position::MAXITER)
         error(regex_error::exceeds_limits, loc);
-      Iter n = static_cast<Iter>(k);
+      Iter n = static_cast<Iter>(d);
       Iter m = n;
       bool unlimited = false;
       if (at(loc) == ',')
@@ -1756,17 +1759,20 @@ void Pattern::compile(
       {
         // combine the tree DFA transitions with the regex DFA transition moves
         Chars chars;
-        for (DFA::State::Edges::iterator t = state->tnode->edges.begin(); t != state->tnode->edges.end(); ++t)
-          chars.add(t->first);
         if (opt_.i)
         {
-          for (DFA::State::Edges::iterator t = state->tnode->edges.find('a'); t != state->tnode->edges.end(); ++t)
+          for (DFA::State::Edges::iterator t = state->tnode->edges.begin(); t != state->tnode->edges.end(); ++t)
           {
             Char c = t->first;
-            if (c > 'z')
-              break;
-            chars.add(uppercase(c));
+            chars.add(c);
+            if (c >= 'a' && c <= 'z')
+              chars.add(uppercase(c));
           }
+        }
+        else
+        {
+          for (DFA::State::Edges::iterator t = state->tnode->edges.begin(); t != state->tnode->edges.end(); ++t)
+            chars.add(t->first);
         }
         Moves::iterator i = moves.begin();
         Positions pos;
@@ -1902,12 +1908,15 @@ void Pattern::compile(
           chars.add(t->first);
         if (opt_.i)
         {
-          for (std::map<Char,Tree::Node>::iterator t = state->tnode->edges.find('a'); t != state->tnode->edges.end(); ++t)
+          for (std::map<Char,Tree::Node>::iterator t = state->tnode->edges.begin(); t != state->tnode->edges.end(); ++t)
           {
             Char c = t->first;
-            if (c > 'z')
-              break;
-            chars.add(uppercase(c));
+            if (c >= 'a')
+            {
+              if (c > 'z')
+                break;
+              chars.add(uppercase(c));
+            }
           }
         }
         Moves::iterator i = moves.begin();
@@ -2240,8 +2249,8 @@ void Pattern::trim_anchors(Positions& follow) const
 {
 #ifdef DEBUG
   DBGLOG("trim_anchors({");
-  for (Positions::const_iterator q = follow.begin(); q != follow.end(); ++q)
-    DBGLOGPOS(*q);
+  for (Positions::const_iterator i = follow.begin(); i != follow.end(); ++i)
+    DBGLOGPOS(*i);
   DBGLOGA(" })");
 #endif
   Positions::iterator q = follow.begin();
@@ -2263,8 +2272,8 @@ void Pattern::trim_anchors(Positions& follow) const
   }
 #ifdef DEBUG
   DBGLOGA(" = {");
-  for (Positions::const_iterator q = follow.begin(); q != follow.end(); ++q)
-    DBGLOGPOS(*q);
+  for (Positions::const_iterator i = follow.begin(); i != follow.end(); ++i)
+    DBGLOGPOS(*i);
   DBGLOG(" }");
 #endif
 }
@@ -2378,9 +2387,9 @@ void Pattern::compile_transition(
               error(regex_error::exceeds_limits, loc);
             state->heads.insert(l);
           }
-          Lookahead k = n;
+          Lookahead l = n;
           n += static_cast<Lookahead>(i->second.size());
-          if (n < k)
+          if (n < l)
             error(regex_error::exceeds_limits, loc);
         }
       }
@@ -2402,9 +2411,9 @@ void Pattern::compile_transition(
                 error(regex_error::exceeds_limits, loc);
               state->tails.insert(l);
             }
-            Lookahead k = n;
+            Lookahead l = n;
             n += static_cast<Lookahead>(i->second.size());
-            if (n < k)
+            if (n < l)
               error(regex_error::exceeds_limits, loc);
           }
         }
@@ -2656,19 +2665,29 @@ void Pattern::compile_list(Location loc, Chars& chars, const Mods modifiers) con
       {
         if (!is_meta(lo))
         {
-          if (lo <= c)
-            chars.add(lo, c);
-          else
-            error(regex_error::invalid_class_range, loc);
           if (is_modified(ModConst::i, modifiers, loc))
           {
-            for (Char a = lo; a <= c; ++a)
-            {
-              if (a >= 'A' && a <= 'Z')
-                chars.add(lowercase(a));
-              else if (a >= 'a' && a <= 'z')
-                chars.add(uppercase(a));
-            }
+            Char a = lo;
+            Char b = c;
+            if (a >= 'a' && a <= 'z' && b <= 'z')
+              a = uppercase(a);
+            if (b >= 'a' && b <= 'z' && a <= uppercase(b))
+              b = uppercase(b);
+            if (a > b)
+              error(regex_error::invalid_class_range, loc);
+            chars.add(a, b);
+            a = std::max<Char>(lo, 'A');
+            b = std::min<Char>(c, 'Z');
+            if (a <= b)
+              chars.add(lowercase(a), lowercase(b));
+            a = std::max<Char>(lo, 'a');
+            b = std::min<Char>(c, 'z');
+            if (a <= b)
+              chars.add(uppercase(a), uppercase(b));
+          }
+          else
+          {
+            chars.add(lo, c);
           }
           c = META_EOL;
         }
@@ -3049,9 +3068,9 @@ void Pattern::encode_dfa(DFA::State *start)
 void Pattern::gencode_dfa(const DFA::State *start) const
 {
 #ifndef WITH_NO_CODEGEN
-  for (std::vector<std::string>::const_iterator i = opt_.f.begin(); i != opt_.f.end(); ++i)
+  for (std::vector<std::string>::const_iterator it = opt_.f.begin(); it != opt_.f.end(); ++it)
   {
-    const std::string& filename = *i;
+    const std::string& filename = *it;
     size_t len = filename.length();
     if ((len > 2 && filename.compare(len - 2, 2, ".h"  ) == 0)
      || (len > 3 && filename.compare(len - 3, 3, ".hh" ) == 0)
@@ -3521,9 +3540,9 @@ void Pattern::gencode_dfa_closure(FILE *file, const DFA::State *state, int nest,
 void Pattern::graph_dfa(const DFA::State *start) const
 {
 #ifndef WITH_NO_CODEGEN
-  for (std::vector<std::string>::const_iterator i = opt_.f.begin(); i != opt_.f.end(); ++i)
+  for (std::vector<std::string>::const_iterator it = opt_.f.begin(); it != opt_.f.end(); ++it)
   {
-    const std::string& filename = *i;
+    const std::string& filename = *it;
     size_t len = filename.length();
     if ((len > 3 && filename.compare(len - 3, 3, ".gv") == 0)
      || (len > 4 && filename.compare(len - 4, 4, ".dot") == 0))
@@ -3694,9 +3713,9 @@ void Pattern::export_code() const
 #ifndef WITH_NO_CODEGEN
   if (nop_ == 0)
     return;
-  for (std::vector<std::string>::const_iterator i = opt_.f.begin(); i != opt_.f.end(); ++i)
+  for (std::vector<std::string>::const_iterator it = opt_.f.begin(); it != opt_.f.end(); ++it)
   {
-    const std::string& filename = *i;
+    const std::string& filename = *it;
     size_t len = filename.length();
     if ((len > 2 && filename.compare(len - 2, 2, ".h"  ) == 0)
      || (len > 3 && filename.compare(len - 3, 3, ".hh" ) == 0)
@@ -4586,7 +4605,7 @@ void Pattern::gen_match_hfa(DFA::State *start)
     {
       HFA::HashRanges& set_ranges = hfa_.hashes[level][next->first->index];
       HFA::HashRanges& get_ranges = next->second;
-      for (size_t offset = std::max(HFA::MAX_CHAIN - 1, level) + 1 - HFA::MAX_CHAIN; offset <= level; ++offset)
+      for (size_t offset = std::max<size_t>(HFA::MAX_CHAIN - 1, level) + 1 - HFA::MAX_CHAIN; offset <= level; ++offset)
         set_ranges[offset].swap(get_ranges[offset]);
     }
   }
@@ -4635,7 +4654,7 @@ bool Pattern::gen_match_hfa_transitions(size_t level, size_t& max_level, DFA::St
     Char lo = edge.lo();
     Char hi = edge.hi();
     DBGLOG("%zu HFA %p: %u..%u -> %p", level, state, lo, hi, next_state);
-    for (size_t offset = std::max(HFA::MAX_CHAIN - 1, level) + 1 - HFA::MAX_CHAIN; offset < level; ++offset)
+    for (size_t offset = std::max<size_t>(HFA::MAX_CHAIN - 1, level) + 1 - HFA::MAX_CHAIN; offset < level; ++offset)
     {
       DBGLOGN("   offset%3zu", offset);
       HFA::HashRange& next_hashes = hashes[next_state][offset];

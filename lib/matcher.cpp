@@ -2347,7 +2347,11 @@ bool Matcher::advance_pattern_min4(size_t loc)
     if (loc + 2 >= end_)
     {
       if (loc + 1 >= end_)
-        return false;
+      {
+        loc -= MIN - 1;
+        set_current(loc);
+        return loc + MIN <= end_;
+      }
       --loc;
       state1 = state2;
     }
@@ -3451,7 +3455,7 @@ bool Matcher::advance_string_bm(size_t loc)
       }
       else
       {
-        size_t k = bms[static_cast<uint8_t>(*q)];
+        k = bms[static_cast<uint8_t>(*q)];
         if (p + k > t + bmd)
           s += k - (t - p);
         else
@@ -3510,7 +3514,7 @@ bool Matcher::advance_string_bm_pma(size_t loc)
       }
       else
       {
-        size_t k = bms[static_cast<uint8_t>(*q)];
+        k = bms[static_cast<uint8_t>(*q)];
         if (p + k > t + bmd)
           s += k - (t - p);
         else
@@ -3570,7 +3574,7 @@ bool Matcher::advance_string_bm_pmh(size_t loc)
       }
       else
       {
-        size_t k = bms[static_cast<uint8_t>(*q)];
+        k = bms[static_cast<uint8_t>(*q)];
         if (p + k > t + bmd)
           s += k - (t - p);
         else
