@@ -52,7 +52,7 @@
 
 // externals, defined in fastsearch_fsm.cpp
 extern void reflex_code_FSM(reflex::Matcher& m);
-extern const reflex::Pattern::Pred reflex_pred_FSM[];
+extern const char reflex_pred_FSM[]; // changed to char type in v6.0.0
 
 int main(int argc, char **argv)
 {
@@ -73,8 +73,8 @@ int main(int argc, char **argv)
       exit(EXIT_FAILURE);
     }
 
-    // construct a pattern from the FSM code and predictor in fastsearch_fsm.cpp
-    reflex::Pattern pattern(reflex_code_FSM, reflex_pred_FSM);
+    // construct a thread-safe pattern from the FSM code and predictor in fastsearch_fsm.cpp
+    static const reflex::Pattern pattern(reflex_code_FSM, reflex_pred_FSM);
     reflex::Matcher matcher(pattern, file);
 
 #ifdef WARM_START_RUNS

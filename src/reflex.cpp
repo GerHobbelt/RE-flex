@@ -2757,7 +2757,7 @@ void Reflex::write_lexer()
         write_namespace_open();
       *out << "extern void reflex_code_" << prefix_opt << conditions[start] << "(reflex::Matcher&);\n";
       if (!options["find"].empty())
-        *out << "extern const reflex::Pattern::Pred reflex_pred_" << prefix_opt << conditions[start] << "[];\n";
+        *out << "extern const char reflex_pred_" << prefix_opt << conditions[start] << "[];\n";
       if (!options["namespace"].empty())
         write_namespace_close();
     }
@@ -2771,7 +2771,7 @@ void Reflex::write_lexer()
         write_namespace_open();
       *out << "extern const reflex::Pattern::Opcode reflex_code_" << prefix_opt << conditions[start] << "[];\n";
       if (!options["find"].empty())
-        *out << "extern const reflex::Pattern::Pred reflex_pred_" << prefix_opt << conditions[start] << "[];\n";
+        *out << "extern const char reflex_pred_" << prefix_opt << conditions[start] << "[];\n";
       if (!options["namespace"].empty())
         write_namespace_close();
     }

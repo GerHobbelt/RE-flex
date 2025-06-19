@@ -21,7 +21,7 @@
      <td>
       <div style="float: right; font-size: 18px; font-weight: bold;">reflex::Pattern::Const Struct Reference</div>
       <br>
-      <div style="float: right; font-size: 10px;">updated Fri May 16 2025 by Robert van Engelen</div>
+      <div style="float: right; font-size: 10px;">updated Thu Jun 19 2025 by Robert van Engelen</div>
      </td>
      <td width="10%">&nbsp;</td>
     </tr>
@@ -83,15 +83,21 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:ac5b9677a2572e235683bd7f0e8de1e54"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a878042a0e46a089fd40b5f27bbf81ea3">Index</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#ac5b9677a2572e235683bd7f0e8de1e54">HALT</a> = 0xffff</td></tr>
 <tr class="memdesc:ac5b9677a2572e235683bd7f0e8de1e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">HALT marker for GOTO opcodes, must be 16 bit max.  <a href="#ac5b9677a2572e235683bd7f0e8de1e54">More...</a><br /></td></tr>
 <tr class="separator:ac5b9677a2572e235683bd7f0e8de1e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f1b9246eb17fb69412ebb845eb13abf"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#a1f1b9246eb17fb69412ebb845eb13abf">HASH</a> = 0x1000</td></tr>
-<tr class="memdesc:a1f1b9246eb17fb69412ebb845eb13abf"><td class="mdescLeft">&#160;</td><td class="mdescRight">size of the predict match array  <a href="#a1f1b9246eb17fb69412ebb845eb13abf">More...</a><br /></td></tr>
+<tr class="memitem:a1f1b9246eb17fb69412ebb845eb13abf"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#a1f1b9246eb17fb69412ebb845eb13abf">HASH</a> = 0x2000</td></tr>
+<tr class="memdesc:a1f1b9246eb17fb69412ebb845eb13abf"><td class="mdescLeft">&#160;</td><td class="mdescRight">size of the predict match array (16K bytes)  <a href="#a1f1b9246eb17fb69412ebb845eb13abf">More...</a><br /></td></tr>
 <tr class="separator:a1f1b9246eb17fb69412ebb845eb13abf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89c8ff466ea717dafa8c0d190520d405"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#a89c8ff466ea717dafa8c0d190520d405">BTAP</a> = 0x0800</td></tr>
-<tr class="memdesc:a89c8ff466ea717dafa8c0d190520d405"><td class="mdescLeft">&#160;</td><td class="mdescRight">size of the bitap hashed character pairs array  <a href="#a89c8ff466ea717dafa8c0d190520d405">More...</a><br /></td></tr>
+<tr class="memitem:a89c8ff466ea717dafa8c0d190520d405"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#a89c8ff466ea717dafa8c0d190520d405">BTAP</a> = 0x4000</td></tr>
+<tr class="memdesc:a89c8ff466ea717dafa8c0d190520d405"><td class="mdescLeft">&#160;</td><td class="mdescRight">size of the bitap hashed character pairs array (16K bytes)  <a href="#a89c8ff466ea717dafa8c0d190520d405">More...</a><br /></td></tr>
 <tr class="separator:a89c8ff466ea717dafa8c0d190520d405"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace1b31ba98fecd94be6783bee29212b2"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a92ee4d738dfc4d3ac9e3e5458300023b">Bitap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#ace1b31ba98fecd94be6783bee29212b2">BITS</a> = 8</td></tr>
-<tr class="memdesc:ace1b31ba98fecd94be6783bee29212b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bitap bits, may change in a future update  <a href="#ace1b31ba98fecd94be6783bee29212b2">More...</a><br /></td></tr>
+<tr class="memdesc:ace1b31ba98fecd94be6783bee29212b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bitap bits &lt;= 8*sizeof(Bitap) &gt;= PM_M, may change in a future update  <a href="#ace1b31ba98fecd94be6783bee29212b2">More...</a><br /></td></tr>
 <tr class="separator:ace1b31ba98fecd94be6783bee29212b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2dcc5c080af03fc4ddd6aa39f2ee742"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a459759d450d28c0d2044de35492f967a">Pred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#af2dcc5c080af03fc4ddd6aa39f2ee742">PM_K</a> = 3</td></tr>
+<tr class="memdesc:af2dcc5c080af03fc4ddd6aa39f2ee742"><td class="mdescLeft">&#160;</td><td class="mdescRight">first predict-match step  <a href="#af2dcc5c080af03fc4ddd6aa39f2ee742">More...</a><br /></td></tr>
+<tr class="separator:af2dcc5c080af03fc4ddd6aa39f2ee742"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a062ff659ab99dd4ea83c0e3d79b34fde"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classreflex_1_1_pattern.html#a459759d450d28c0d2044de35492f967a">Pred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structreflex_1_1_pattern_1_1_const.html#a062ff659ab99dd4ea83c0e3d79b34fde">PM_M</a> = 8</td></tr>
+<tr class="memdesc:a062ff659ab99dd4ea83c0e3d79b34fde"><td class="mdescLeft">&#160;</td><td class="mdescRight">total predict-match length 3+5 of PM3+PM5  <a href="#a062ff659ab99dd4ea83c0e3d79b34fde">More...</a><br /></td></tr>
+<tr class="separator:a062ff659ab99dd4ea83c0e3d79b34fde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Common constants. </p>
@@ -136,7 +142,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>number of bitap bits, may change in a future update </p>
+<p>number of bitap bits &lt;= 8*sizeof(Bitap) &gt;= PM_M, may change in a future update </p>
 
 </div>
 </div>
@@ -148,7 +154,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a> reflex::Pattern::Const::BTAP = 0x0800</td>
+          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a> reflex::Pattern::Const::BTAP = 0x4000</td>
         </tr>
       </table>
   </td>
@@ -158,7 +164,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>size of the bitap hashed character pairs array </p>
+<p>size of the bitap hashed character pairs array (16K bytes) </p>
 
 </div>
 </div>
@@ -214,7 +220,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a> reflex::Pattern::Const::HASH = 0x1000</td>
+          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a3739687ef42556a3700e046de2f1d33e">Hash</a> reflex::Pattern::Const::HASH = 0x2000</td>
         </tr>
       </table>
   </td>
@@ -224,7 +230,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>size of the predict match array </p>
+<p>size of the predict match array (16K bytes) </p>
 
 </div>
 </div>
@@ -294,13 +300,57 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="af2dcc5c080af03fc4ddd6aa39f2ee742"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a459759d450d28c0d2044de35492f967a">Pred</a> reflex::Pattern::Const::PM_K = 3</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>first predict-match step </p>
+
+</div>
+</div>
+<a class="anchor" id="a062ff659ab99dd4ea83c0e3d79b34fde"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classreflex_1_1_pattern.html#a459759d450d28c0d2044de35492f967a">Pred</a> reflex::Pattern::Const::PM_M = 8</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>total predict-match length 3+5 of PM3+PM5 </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="pattern_8h.html">pattern.h</a></li>
 </ul>
 </div><!-- contents -->
 <hr class="footer">
 <address class="footer"><small>
-Converted on Fri May 16 2025 15:23:48 by <a target="_blank" href="http://www.doxygen.org/index.html">Doxygen</a> 1.8.11</small></address>
+Converted on Thu Jun 19 2025 14:49:21 by <a target="_blank" href="http://www.doxygen.org/index.html">Doxygen</a> 1.8.11</small></address>
 <br>
 <div style="height: 246px; background: #DBDBDB;">
 </body>

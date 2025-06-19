@@ -13,32 +13,35 @@ RE/flex user guide                                                  {#mainpage}
 What is RE/flex?                                                       {#intro}
 ================
 
-A high-performance C++ regex library and a lexical analyzer generator like
-Flex and Lex.
+Yet another high-performance C++ regular expression (RE) library and a lexical
+analyzer generator like Flex.
 
-Firstly, the high-performance RE/flex regex engine internally builds finite
-state machine tables or generates direct code to scan and search input
-efficiently.
-
-RE/flex also supports other regex engines under the same uniform C++ class API,
-namely RE/flex with fuzzy matching, the PCRE2 library, the Boost.Regex library,
+However, RE/flex also includes and supports several regex engines under the
+same uniform C++ class API, namely the RE/flex high-performance regex library,
+the RE/flex fuzzy regex library, the PCRE2 library, the Boost.Regex library,
 and std::regex.
 
-This uniform API implements pattern matching on files, streams, strings, and
-memory directly.  Input is internally buffered in a window so that very large
-files can be searched.  File encodings are normalized to UTF-8 to apply UTF-8
-Unicode regex pattern matching.
+This uniform API makes it trivial to perform pattern matching on files,
+streams, strings, wide strings, and memory, using any one of these regex
+libraries.  File input is internally buffered in a window so that very large
+files can be searched.  Input from UTF-16 or UTF-32 formatted files is
+automatically normalized to UTF-8 to apply UTF-8 Unicode regex pattern
+matching.
 
-Secondly, the RE/flex lexical analyzer generator extends Flex++ with Unicode
-support and many new useful features, such as regex indentation anchors, regex
-lazy quantifiers, regex word boundaries, methods for error reporting and
-recovery, and new options to simplify integration with with Bison and other
-parsers.
+For performance, the RE/flex regex engine internally builds finite state
+machines in VM opcode or in efficient direct C++ code to scan and search input
+quick.  SIMD (SSE2/AVX2/AVX512/NEON/AArch64) acceleration is used when
+available to speed up searching using novel pattern match prediction methods.
 
-The RE/flex lexical analyzer generator does all the heavy-lifting for you to
-make it easier to integrate advanced tokenizers with Bison and other parsers.
-It generates the necessary gluing code depending on the type of Bison parser
-used, such as advanced "Bison complete parsers".
+The RE/flex lexical analyzer generator extends Flex++ with Unicode support and
+many new useful features, such as regex indentation anchors, regex lazy
+quantifiers, regex word boundaries, methods for error reporting and recovery,
+and new options to simplify integration with Bison and other parsers.
+
+The RE/flex lexical analyzer generator does all the heavy-lifting to make it
+easier to integrate advanced tokenizers with Bison and other parsers.  It
+generates the necessary gluing code depending on the type of Bison parser used,
+such as the more advanced "Bison complete parsers".
 
 In a nutshell, the RE/flex lexical analyzer generator
 
@@ -317,9 +320,9 @@ and splitting input from strings, files and streams in regular C++ applications
 Flexible high-performance regex classes                               {#intro2}
 ---------------------------------------
 
-The regex pattern matching C++ classes include the high-performance RE/flex
-regex engine, the RE/flex fuzzy matching engine, classes for Boost.Regex,
-classes for PCRE2, and classes for C++11 std::regex:
+RE/flex defines a single uniform C++ base class API for all regex libraries it
+includes and supports, namely the high-performance RE/flex regex engine, the
+RE/flex fuzzy matching engine, Boost.Regex, PCRE2, and C++11 std::regex:
 
   Engine        | Header file to include  | C++ matcher classes
   ------------- | ----------------------- | -----------------------------------
@@ -362,13 +365,13 @@ compared to the other matchers.
 
 The RE/flex regex common interface API is implemented in an abstract base class
 template `reflex::AbstractMatcher` from which all regex matcher engine classes
-are derived.  This regex API offers a uniform common interface.  This interface
+are derived.  This regex API offers a single uniform interface.  This interface
 is used in the generated scanner.  You can also use this uniform API in your
 C++ application for pattern matching with any of the regex libraries without
 having to use library-specific API calls to do so.
 
-The RE/flex abstract matcher offers four operations for matching with the regex
-engines derived from this base abstract class:
+The RE/flex base class `reflex::AbstractMatcher` offers four typical operations
+to match, search, scan, and split input with regex patterns:
 
   Method      | Result
   ----------- | ---------------------------------------------------------------
@@ -377,9 +380,10 @@ engines derived from this base abstract class:
   `scan()`    | return nonzero if input at current position matches partially
   `split()`   | return nonzero for a split of the input at the next match
 
-These methods return a nonzero value for a match, meaning the `size_t accept()`
-value that identifies the regex group pattern that matched.  The methods are
-repeatable, where the last three return additional matches found when repeated.
+These methods return a nonzero value for a match, meaning the `size_t
+reflex::AbstractMatcher::accept()` value that identifies the regex group
+pattern that matched.  These methods are repeatable where the last three in the
+list return additional matches when found.
 
 For example, to check if a string is a valid date using Boost.Regex:
 
@@ -401,13 +405,13 @@ We can perform exactly the same check with PCRE2 instead of Boost.Regex:
       std::cout << "Valid date!" << std::endl;
 ~~~
 
-The JIT-optimized PCRE2 matcher is better suited when many matches are
-performed on multiple inputs, not just one match as shown above.
+Swapping regex libraries like this is trivial.  The JIT-optimized PCRE2 matcher
+is better suited when many matches are performed on multiple inputs, not just
+one match as shown above.  PCRE2 also fully supports "partial matching" which
+RE/flex internally uses so that large input such as from large files is
+searched incrementally with a sliding window.
 
-Swapping regex libraries is simple.  Sometimes we may need a regex converter
-when a regex feature is used that the regex library does not support.
-
-To search a string for all words matching the pattern `\w+`:
+For example, to search a string for all words matching the pattern `\w+`:
 
 ~~~{.cpp}
     #include <reflex/pcre2matcher.h> // reflex::PCRE2Matcher, reflex::Input
@@ -425,24 +429,43 @@ When executed this code prints:
     Found brown
     Found cow
 
-If we want to match Unicode words, `\w+` should be converted to a Unicode
-pattern, here we convert the pattern for matching with Boost.Regex:
+Changing the input for this example is trivial too, using the `reflex::Input`
+class.  Say we want to search for words in a file:
 
 ~~~{.cpp}
-    #include <reflex/boostmatcher.h> // reflex::BoostMatcher, reflex::Input, boost::regex
+    #include <reflex/pcre2matcher.h> // reflex::PCRE2Matcher, reflex::Input
+
+    reflex::Input input(fopen("file.txt", "r"));
+    if (input.good())
+    {
+      reflex::PCRE2Matcher matcher("\\w+", input);
+      while (matcher.find() != 0)
+        std::cout << "Found " << matcher.text() << std::endl;
+      fclose(input.file())
+    }
+~~~
+
+Sometimes we may need a regex converter when we want to use a regex feature
+that the regex library we use does not support.
+
+If we want to match Unicode words, `\w+` should be converted to a Unicode
+pattern, here we convert the pattern for matching with the high-performance
+RE/flex regex library:
+
+~~~{.cpp}
+    #include <reflex/matcher.h> // reflex::Matcher, reflex::Input
 
     // convert \w+ for Unicode matching
-    static const std::string pattern = reflex::BoostMatcher::convert("\\w+", reflex::convert_flag::unicode);
+    static const std::string pattern = reflex::Matcher::convert("\\w+", reflex::convert_flag::unicode);
 
-    // use a BoostMatcher to search for words in a sentence
-    reflex::BoostMatcher matcher(pattern, "Höw nöw bröwn cöw.");
+    reflex::Matcher matcher(pattern, "Höw nöw bröwn cöw.");
     while (matcher.find() != 0)
       std::cout << "Found " << matcher.text() << std::endl;
 ~~~
 
-Conversion to Unicode patterns is necessary for all matchers except
-`reflex::PCRE2UTFMatcher`, since matchers operate in non-Unicode mode by
-default to match bytes, not wide characters.  We will come back again to
+Conversion to support Unicode patterns is necessary for all matchers except
+for the `reflex::PCRE2UTFMatcher`, since matchers operate in non-Unicode mode
+by default to match bytes, not wide characters.  We will come back again to
 converters later.
 
 When executed this code prints:
@@ -925,7 +948,7 @@ recommend to construct static pattern objects to create the FSMs only once:
     #include <reflex/matcher.h> // reflex::Matcher, reflex::Pattern, reflex::Input
 
     // statically allocate and construct a pattern, i.e. once and for all
-    static reflex::Pattern word_pattern("\\w+");
+    static const reflex::Pattern word_pattern("\\w+");
 
     // use the RE/flex POSIX matcher to search for words in a string sentence
     reflex::Matcher matcher(word_pattern, "How now brown cow.");
@@ -943,7 +966,7 @@ The RE/flex `reflex::Pattern` class has several options that control the regex.
 Options and modes for the regex are set as a string, for example:
 
 ~~~{.cpp}
-    static reflex::Pattern word_pattern("\\w+", "f=graph.gv;f=machine.cpp");
+    reflex::Pattern word_pattern("\\w+", "f=graph.gv;f=machine.cpp");
 ~~~
 
 The `f=graph.gv` option emits a Graphviz <i>`.gv`</i> file that can be visually
@@ -1027,23 +1050,29 @@ opcode tables:
     }
 ~~~
 
-The compact FSM opcode tables or the optimized FSM code may be used directly in
-your code.  This omits the FSM construction overhead at runtime.  Simply
-include this generated file in your source code and pass it on to the
-`reflex::Pattern` constructor:
+In addition, a search predictor table is generated that must be used to
+support and accelerate search when the `reflex::Matcher::find` or
+`reflex::FuzzyMatcher::find` method is used.  This table MUST be passed to the
+`reflex::Pattern` constructor.  This is necessary to support `find()`.  Other
+matcher methods do not require this table.  The benefit is that this approach
+omits the FSM construction overhead that would take place at runtime.  For
+example:
 
 ~~~{.cpp}
     #include <reflex/matcher.h>   // reflex::Matcher, reflex::Pattern, reflex::Input
-    #include "machine.cpp" // reflex_code_FSM[]
+    #include "machine.cpp" // include generated reflex_code_FSM[] and reflex_pred_FSM[]
 
-    // use the pattern FSM (opcode table or C++ code) for fast search
-    static reflex::Pattern pattern(reflex_code_FSM);
+    // thread-safe pattern FSM (opcode table or C++ code) and predictor for fast search
+    static const reflex::Pattern pattern(reflex_code_FSM, reflex_pred_FSM);
 
-    // use the RE/flex POSIX matcher to search for words in a string sentence
+    // search with a Matcher or FuzzyMatcher for words in a string sentence
     reflex::Matcher matcher(pattern, "How now brown cow.");
     while (matcher.find() != 0)
       std::cout << "Found " << matcher.text() << std::endl;
 ~~~
+
+The tables are used directly in your application.  The constructed static
+`reflex::Pattern` is thread-safe to share.
 
 The RE/flex `reflex::Pattern` construction options are given as a string:
 
@@ -1064,7 +1093,7 @@ The RE/flex `reflex::Pattern` construction options are given as a string:
   `w`           | display regex syntax errors before raising them as exceptions
 
 For example, `reflex::Pattern pattern(pattern, "isr")` enables case-insensitive
-dot-all matching with syntax errors thrown as `reflex::Pattern::Error` types of
+dot-all matching with syntax errors thrown as `reflex::regex_error` types of
 exceptions.  By default, the `reflex::Pattern` constructor solely throws the
 `reflex::regex_error::exceeds_length` and `reflex::regex_error::exceeds_limits`
 exceptions and silently ignores syntax errors, see \ref regex-pattern.
@@ -1073,8 +1102,8 @@ In summary:
 
 - RE/flex defines an extensible abstract class interface that offers a standard
   API to use regex matcher engines.  The API is used by the generated scanners.
-  The API supports UTF-8/16/32-encoded FILE content, wide strings and streaming
-  data.
+  The API supports various forms of input such as UTF-8/16/32-encoded `FILE*`
+  data, strings and wide strings, buffers, and streaming data.
 
 - RE/flex includes a regex matcher class and a regex pattern class to implement
   fast matching with deterministic finite state machines (FSMs).  The FSM graph
@@ -5858,38 +5887,27 @@ else" dot-rule to ignore unmatched input, as in:
 </div>
 
 The problem with this rule is that it is invoked for every single unmatched
-character in the input, which is inefficient and slows down searching for
-matching patterns significantly when more than a few unmatched characters are
-encountered in the input.  Note that we cannot use `.+` to match longer
-patterns because this overlaps with other patterns and is also likely longer
-than the other patterns, i.e. the rule subsumes those patterns.
+character in the input, which is inefficient and slows down searching
+significantly when more than a few unmatched characters are encountered in the
+input.  Note that we cannot use `.+` to match longer patterns because this
+overlaps with other patterns and is also likely longer than the other patterns,
+i.e. the rule subsumes all other patterns.
 
-Unless the input contains relatively few unmatched characters or bytes to
-ignore, option `-S` (or `−−find`) speeds up searching and matching
-significantly.  This option applies the following optimizations to the RE/flex
-FSM matcher:
-
-- Hashing is used to match multiple strings, which is faster than multi-string
-  matching with Aho-Corasick, Commentz-Walter, Wu-Manber, and other methods.
-
-- Single short strings are searched with `memchr()`.  Single long strings are
-  searched with Boyer-Moore-Horspool.  Also regex patterns with common prefixes
-  are searched efficiently, e.g. the regex `reflex|regex|regular` has common
-  prefix string `"re"` that is searched in the input first, then hashing is
-  used to predict a match for the part after `"re"`, followed by regex matching
-  with the FSM.
-
-With option `-S` (or `−−find`), a "catch all else" dot-rule should not be
-defined, since unmatched input is already ignored with this option and
-defining a "catch all else" dot-rule actually slows down the search.
-
-@note By contrast to option `-S` (or `−−find`), option `-s` (or `−−nodefault`)
-cannot be used to ignore unmatched input.  Option `-s` produces runtime errors
-and exceptions for unmatched input.
+Option `-S` (or `−−find`) speeds up searching significantly.  Hashed bitap
+combined with hashed predict-match and SIMD acceleration are used.
 
 This option only applies to the RE/flex matcher and can be combined with
 options `-f` (or `−−full`) and `-F` (or `−−fast`) to further increase
-performance.
+performance.  With one of these options, a FSM in C++ code or an opcode table
+is saved together with a pattern predictor table that is used to accelerate
+search.
+
+@note With option `-S` (or `−−find`), a "catch all else" dot-rule should not be
+defined, since unmatched input is already ignored with this option and
+defining a "catch all else" dot-rule actually slows down the search.
+
+@note Option `-s` (or `−−nodefault`) cannot be used to ignore unmatched input.
+Option `-s` produces runtime errors and exceptions for unmatched input.
 
 🔝 [Back to table of contents](#)
 
@@ -7036,7 +7054,7 @@ options to construct the FSM internally.  The pattern instance is passed to a
 ~~~{.cpp}
     #include <reflex/matcher.h>
 
-    [static] reflex:Pattern pattern(string [, "options"] )
+    [static] [const] reflex:Pattern pattern(string [, "options"] )
 
     reflex::Matcher matcher(pattern, reflex::Input [, "options"] )
 ~~~
@@ -7046,8 +7064,9 @@ matcher is in use.  A new `reflex::Pattern` object may also be used to replace
 a matcher's current pattern at any time, see \ref intro2.
 
 To improve performance, it is recommended to create a `static` instance of the
-pattern if the regex string is fixed.  This avoids repeated FSM construction at
-run time.
+pattern if the specified regex is fixed.  This avoids repeated FSM construction
+at run time.  Once constructed, the pattern object is constant and thread-safe
+to share among multiple threads with thread-local matchers instantiated.
 
 The following options are combined in a string and passed to the
 `reflex::Pattern` constructor:
@@ -7068,7 +7087,7 @@ The following options are combined in a string and passed to the
   `w`           | display regex syntax errors before raising them as exceptions
 
 The compilation of a `reflex::Pattern` object into a FSM may throw an exception
-with option `"r"` when the regex string has problems:
+with option `"r"` when the specified regex has problems:
 
 ~~~{.cpp}
     try
@@ -7109,11 +7128,11 @@ By default, the `reflex::Pattern` constructor solely throws the
 `reflex::regex_error::exceeds_length` and `reflex::regex_error::exceeds_limits`
 exceptions and silently ignores syntax errors.
 
-Likewise, the `reflex::Matcher::convert`, `reflex::PCRE2Matcher::convert`,
+The `reflex::Matcher::convert`, `reflex::PCRE2Matcher::convert`,
 `reflex::PCRE2UTFMatcher::convert`, `reflex::BoostPerlMatcher::convert`,
 `reflex::BoostMatcher::convert`, and `reflex::BoostPosixMatcher::convert`
-functions may throw a `reflex_error` exception.  See the next section for
-details.
+functions may throw a `reflex_error` exception such as for regex syntax error.
+See the next section for details.
 
 The `reflex::Pattern` class has the following public methods:
 
@@ -7137,7 +7156,7 @@ has a FSM accepting state that identifies the sub-pattern.  For example:
 ~~~{.cpp}
     #include <reflex/matcher.h>
 
-    reflex::Pattern pattern("(a+)|(a)", "r");
+    static const reflex::Pattern pattern("(a+)|(a)", "r");
     std::cout << "regex = " << pattern[0] << std::endl;
     for (size_t i = 1; i <= pattern.size(); ++i)
       if (!pattern.reachable(i))
@@ -7897,7 +7916,7 @@ To ensure that Unicode patterns in UTF-8 strings are grouped properly, use
 \ref regex-convert, for example as follows:
 
 ~~~{.cpp}
-    static reflex::Pattern CR(reflex::Matcher::convert("(?u:\u{00A9})"));
+    static const reflex::Pattern CR(reflex::Matcher::convert("(?u:\u{00A9})"));
     if (reflex::Matcher(CR, L"©").matches())
       std::cout << "copyright symbol matches\n";
 ~~~
@@ -8201,7 +8220,7 @@ range-based loop:
     std::string example("Monty\n Python's    Flying  Circus");
 
     // construct a fixed pattern that is case insensitive
-    static Pattern pattern("monty|python", "i");
+    static const Pattern pattern("monty|python", "i");
 
     // construct a matcher to search the example text
     Matcher matcher(pattern, example);
@@ -8369,7 +8388,7 @@ range-based loop:
 
     using namespace reflex;
 
-    static Pattern pattern =
+    static const Pattern pattern =
       "(\\w*cat\\w*)|" // 1st group = token 1
       "(\\w*dog\\w*)|" // 2nd group = token 2
       "(\\w+)|"        // 3rd group = token 3
@@ -8405,7 +8424,7 @@ numbers are sorted into five sets for each type of major credit card:
 
     using namespace reflex;
 
-    static Pattern card_patterns =
+    static const Pattern card_patterns =
       "(?# MasterCard)(5[1-5]\\d{14})|"                   // 1st group = MC
       "(?# Visa)(4\\d{12}(?:\\d{3})?)|"                   // 2nd group = VISA
       "(?# AMEX)(3[47]\\d{13})|"                          // 3rd group = AMEX
