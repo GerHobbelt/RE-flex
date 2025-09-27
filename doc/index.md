@@ -6907,7 +6907,7 @@ The `reflex::FuzzyMatcher` class is derived from `reflex::Matcher` to support
 approximate regex pattern matching.  The approximation error is contrained by
 an "edit distance" which is one by default.  The edit distance is also called
 [Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance).
-Instantiating a `reflex::FuzzyMatcher` takes an optional `MAX` paramter to
+Instantiating a `reflex::FuzzyMatcher` takes an optional `MAX` parameter to
 contrain the edit distance permitted:
 
 ~~~{.cpp}
